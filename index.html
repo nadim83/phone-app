@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProFit Coach - Workout Generator & PDF Studio</title>
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/lib/index.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -64,7 +64,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-primary border border-blue-500/20">
-                    v2.7 Pro
+                    v2.8 Pro
                 </span>
             </div>
         </header>
@@ -226,8 +226,8 @@
         </main>
     </div>
 
-    <!-- Hidden Dedicated Clean Container for PDF Export (Prevents form inputs from printing) -->
-    <div id="pdfPrintTemplate" style="display:none; background: #ffffff; color: #0f172a; padding: 24px; font-family: sans-serif; width: 794px;"></div>
+    <!-- Hidden Dedicated Clean Container for PDF Export -->
+    <div id="pdfPrintTemplate" style="display:none;"></div>
 
     <script>
         let currentMode = 'hypertrophy';
@@ -678,15 +678,16 @@
             document.getElementById('pdfExportWrapper').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Dedicated Clean PDF Export Function (Excludes form inputs completely)
+        // Dedicated Clean PDF Export Function
         function downloadPDF() {
             const clientName = document.getElementById('clientName').value.trim() || "Client_Workout_Plan";
             const previewElement = document.getElementById('pdfExportWrapper');
             
-            // Clone only the preview card so inputs/buttons are never included
             const printTemplate = document.getElementById('pdfPrintTemplate');
             printTemplate.innerHTML = previewElement.innerHTML;
-            printTemplate.style.display = 'block';
+            
+            // Apply inline styles to ensure clean PDF rendering
+            printTemplate.style.cssText = "display: block; background: #ffffff; color: #0f172a; padding: 24px; font-family: sans-serif; width: 794px;";
 
             const opt = {
                 margin:       10,
