@@ -20,7 +20,6 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .app-container {
             max-width: 480px;
@@ -43,11 +42,39 @@
             background: #f97316;
             border-radius: 4px;
         }
+
+        /* Print Media Styles for Perfect PDF Export */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+            body * {
+                visibility: hidden;
+            }
+            #pdfExportWrapper, #pdfExportWrapper * {
+                visibility: visible;
+            }
+            #pdfExportWrapper {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen py-4 px-2">
 
-    <div class="app-container bg-darkbg rounded-3xl border border-slate-800 overflow-hidden flex flex-col">
+    <div class="app-container bg-darkbg rounded-3xl border border-slate-800 overflow-hidden flex flex-col no-print">
         
         <!-- App Header -->
         <header class="bg-gradient-to-r from-blue-900 via-slate-900 to-slate-900 p-5 border-b border-slate-800 flex items-center justify-between">
@@ -64,7 +91,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-primary border border-blue-500/20">
-                    v3.0 Pro
+                    v3.1 Pro
                 </span>
             </div>
         </header>
@@ -183,47 +210,47 @@
                 <i class="fa-solid fa-wand-magic-sparkles text-lg"></i> Generate 5-Week Progressive Plan
             </button>
 
-            <!-- SECTION 6 & 7: On-Screen Live Preview Container (Used Directly for PDF Export) -->
-            <div id="pdfExportWrapper" class="bg-white text-slate-900 p-6 rounded-3xl shadow-2xl space-y-6 hidden border-4 border-secondary">
-                <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div id="pdfClientAvatarContainer" class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-300 overflow-hidden flex items-center justify-center shrink-0">
-                            <img id="pdfClientImg" src="" class="w-full h-full object-cover hidden">
-                            <i id="pdfClientIcon" class="fa-solid fa-user text-slate-400"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-extrabold text-slate-900 uppercase" id="pdfClientNameDisplay">Client Name</h2>
-                            <p class="text-xs text-slate-500 font-medium">Mode: <span id="pdfModeDisplay" class="font-bold text-orange-600">Hypertrophy</span></p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <h3 class="text-xs font-bold text-blue-600 tracking-wider uppercase">ProFit Coaching</h3>
-                        <p class="text-[11px] text-slate-500">Coach: <span id="pdfCoachNameDisplay" class="font-semibold text-slate-700">MD. Nadim Khan</span></p>
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 space-y-1">
-                    <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> 5-Week Periodization & Overload Formula Applied:</p>
-                    <p id="pdfRulesDescription" class="text-blue-800 leading-relaxed">
-                        Hypertrophy progression: Weeks 1-4 reps 8→9→10→12 with +2.5kg (+5kg for Squat/Deadlift). Week 5 is Deload week.
-                    </p>
-                </div>
-
-                <div id="pdfWeeksContainer" class="space-y-6"></div>
-
-                <div class="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-400">
-                    Generated with ProFit Coach Engine • 100% Mobile Optimized PDF
-                </div>
-            </div>
-
             <!-- Download Button -->
             <div id="downloadActionContainer" class="hidden pb-4">
                 <button type="button" onclick="downloadPDF()" class="w-full py-3.5 bg-primary hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-file-pdf text-lg"></i> Download Clean PDF for Client
+                    <i class="fa-solid fa-file-pdf text-lg"></i> Save / Print PDF Plan
                 </button>
             </div>
 
         </main>
+    </div>
+
+    <!-- SECTION 6 & 7: Dedicated Clean PDF Export Container -->
+    <div id="pdfExportWrapper" class="bg-white text-slate-900 p-6 rounded-3xl shadow-2xl space-y-6 hidden border-4 border-secondary max-w-2xl mx-auto my-6">
+        <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4">
+            <div class="flex items-center gap-3">
+                <div id="pdfClientAvatarContainer" class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-300 overflow-hidden flex items-center justify-center shrink-0">
+                    <img id="pdfClientImg" src="" class="w-full h-full object-cover hidden">
+                    <i id="pdfClientIcon" class="fa-solid fa-user text-slate-400"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-extrabold text-slate-900 uppercase" id="pdfClientNameDisplay">Client Name</h2>
+                    <p class="text-xs text-slate-500 font-medium">Mode: <span id="pdfModeDisplay" class="font-bold text-orange-600">Hypertrophy</span></p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h3 class="text-xs font-bold text-blue-600 tracking-wider uppercase">ProFit Coaching</h3>
+                <p class="text-[11px] text-slate-500">Coach: <span id="pdfCoachNameDisplay" class="font-semibold text-slate-700">MD. Nadim Khan</span></p>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 space-y-1">
+            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> 5-Week Periodization & Overload Formula Applied:</p>
+            <p id="pdfRulesDescription" class="text-blue-800 leading-relaxed">
+                Hypertrophy progression: Weeks 1-4 reps 8→9→10→12 with +2.5kg (+5kg for Squat/Deadlift). Week 5 is Deload week.
+            </p>
+        </div>
+
+        <div id="pdfWeeksContainer" class="space-y-6"></div>
+
+        <div class="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-400">
+            Generated with ProFit Coach Engine • 100% Reliable PDF & Print Output
+        </div>
     </div>
 
     <script>
@@ -673,20 +700,9 @@
             document.getElementById('pdfExportWrapper').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Direct & Robust PDF Export Function (No Hidden Templates)
+        // Native Browser Print/Save as PDF Function (100% Guaranteed Success)
         function downloadPDF() {
-            const clientName = document.getElementById('clientName').value.trim() || "Client_Workout_Plan";
-            const element = document.getElementById('pdfExportWrapper');
-
-            const opt = {
-                margin:       10,
-                filename:     `${clientName.replace(/\s+/g, '_')}_ProFit_Plan.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, backgroundColor: '#ffffff' },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().from(element).set(opt).save();
+            window.print();
         }
     </script>
 </body>
