@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProFit Coach - Workout Generator & PDF Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf Library for Clean PDF Downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // Royal Blue
+                        secondary: '#f97316', // Vibrant Orange
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Mobile App Container Simulation */
+        .app-container {
+            max-width: 480px;
+            margin: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 720px;
+            }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen py-4 px-2">
+
+    <div class="app-container bg-darkbg rounded-3xl border border-slate-800 overflow-hidden flex flex-col">
+        
+        <!-- App Header -->
+        <header class="bg-gradient-to-r from-blue-900 via-slate-900 to-slate-900 p-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-secondary to-orange-400 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-dumbbell text-slate-950 text-lg font-bold"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide text-white flex items-center gap-2">
+                        PRO<span class="text-secondary">FIT</span> COACH
+                    </h1>
+                    <p class="text-xs text-slate-400">Advanced Program & Progression Engine</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-primary border border-blue-500/20">
+                    v2.6 Pro
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Form & Dashboard Area -->
+        <main class="p-4 sm:p-6 space-y-6 flex-1 overflow-y-auto">
+            
+            <!-- SECTION 1: Client & Coach Info & Image Upload -->
+            <section class="bg-cardbg p-4 rounded-2xl border border-slate-800 shadow-md space-y-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-2">
+                    <i class="fa-solid fa-id-card"></i> Client & Coach Details
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Client Name</label>
+                        <input type="text" id="clientName" placeholder="e.g. John Doe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-secondary transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Coach Name</label>
+                        <input type="text" id="coachName" placeholder="e.g. MD. Nadim Khan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-secondary transition">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 pt-1">
+                    <div class="relative w-14 h-14 rounded-2xl bg-slate-900 border border-slate-700 overflow-hidden flex items-center justify-center shrink-0">
+                        <img id="clientAvatarPreview" src="" alt="" class="w-full h-full object-cover hidden">
+                        <i id="clientAvatarPlaceholder" class="fa-solid fa-user text-slate-500 text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Client Photo / Avatar</label>
+                        <input type="file" id="clientImage" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-secondary file:text-slate-950 hover:file:bg-orange-600 cursor-pointer">
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Workout Mode Selection -->
+            <section class="bg-cardbg p-4 rounded-2xl border border-slate-800 shadow-md space-y-3">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Training Mode Selection
+                </h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" onclick="setMode('hypertrophy')" id="btnHypertrophy" class="py-3 px-4 rounded-xl text-sm font-bold border transition flex items-center justify-center gap-2 bg-secondary text-slate-950 border-secondary shadow-lg shadow-orange-500/20">
+                        <i class="fa-solid fa-fire"></i> Hypertrophy
+                    </button>
+                    <button type="button" onclick="setMode('strength')" id="btnStrength" class="py-3 px-4 rounded-xl text-sm font-bold border transition flex items-center justify-center gap-2 bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500">
+                        <i class="fa-solid fa-shield-halved"></i> Powerlifting / Strength
+                    </button>
+                </div>
+            </section>
+
+            <!-- SECTION 3 & 4: Day Selector & Workout Builder -->
+            <section class="bg-cardbg p-4 rounded-2xl border border-slate-800 shadow-md space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days"></i> Schedule & Workouts
+                    </h2>
+                    <span id="currentModeBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-orange-500/20 text-secondary font-semibold">Hypertrophy Mode</span>
+                </div>
+
+                <!-- Day Tabs (Day 1 to Day 6) -->
+                <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-none" id="dayTabsContainer">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+
+                <!-- Day Split Focus Dropdown -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-medium text-slate-400">Day <span id="activeDayNumLabel">1</span> Focus / Category</label>
+                    <select id="daySplitSelect" onchange="onDaySplitChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-secondary transition">
+                        <!-- Populated dynamically based on mode -->
+                    </select>
+                </div>
+
+                <!-- Workout Input Form (Hidden if Off Day or specialized) -->
+                <div id="workoutInputCard" class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
+                    <h3 id="workoutFormTitle" class="text-xs font-bold text-primary uppercase tracking-wide">Add Exercise to Day <span id="formDayNum">1</span></h3>
+                    
+                    <!-- Dynamic fields wrapper -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <!-- Exercise Name / Dropdown -->
+                        <div class="sm:col-span-5" id="exerciseNameWrapper">
+                            <label class="block text-[11px] font-medium text-slate-400 mb-1">Exercise Name</label>
+                            <input type="text" id="exName" placeholder="e.g. Incline DB Press" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary">
+                            <select id="exSelectDropdown" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary hidden">
+                                <!-- Populated for cardio or strength presets -->
+                            </select>
+                        </div>
+
+                        <!-- Sets (Hidden in Cardio) -->
+                        <div class="sm:col-span-2" id="fieldSets">
+                            <label class="block text-[11px] font-medium text-slate-400 mb-1">Sets</label>
+                            <input type="number" id="exSets" value="3" min="1" max="10" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary">
+                        </div>
+
+                        <!-- Reps (Hidden in Cardio) -->
+                        <div class="sm:col-span-2" id="fieldReps">
+                            <label class="block text-[11px] font-medium text-slate-400 mb-1">Reps</label>
+                            <input type="text" id="exReps" value="8" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary">
+                        </div>
+
+                        <!-- Weight (Hidden in Cardio) -->
+                        <div class="sm:col-span-3" id="fieldWeight">
+                            <label class="block text-[11px] font-medium text-slate-400 mb-1">Weight (kg)</label>
+                            <input type="number" id="exWeight" value="40" step="0.5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary">
+                        </div>
+
+                        <!-- Time (Visible ONLY in Cardio) -->
+                        <div class="sm:col-span-7 hidden" id="fieldTime">
+                            <label class="block text-[11px] font-medium text-slate-400 mb-1">Cardio Duration / Time</label>
+                            <input type="text" id="exTime" placeholder="e.g. 30 Mins (Zone 2)" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="addOrUpdateExercise()" id="addExerciseBtn" class="w-full py-2.5 bg-primary hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add Exercise to Routine
+                    </button>
+                </div>
+
+                <!-- Exercise List Table / Cards for Active Day -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+                        <span>Exercises Assigned for Day <span id="activeDayDisplayNum">1</span></span>
+                        <span id="exerciseCountBadge">0 items</span>
+                    </div>
+                    <div id="exerciseListContainer" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        <!-- Dynamic Exercise Items -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: Generate & Preview Plan Button -->
+            <button type="button" onclick="generatePlanPreview()" class="w-full py-4 bg-gradient-to-r from-secondary to-orange-500 hover:from-orange-600 hover:to-orange-600 text-slate-950 font-extrabold rounded-2xl shadow-xl shadow-orange-500/30 transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg"></i> Generate 5-Week Progressive Plan
+            </button>
+
+            <!-- SECTION 6 & 7: Printable / PDF Preview Container -->
+            <div id="pdfExportWrapper" class="bg-white text-slate-900 p-6 rounded-3xl shadow-2xl space-y-6 hidden border-4 border-secondary">
+                <!-- PDF Header -->
+                <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div id="pdfClientAvatarContainer" class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-300 overflow-hidden flex items-center justify-center shrink-0">
+                            <img id="pdfClientImg" src="" class="w-full h-full object-cover hidden">
+                            <i id="pdfClientIcon" class="fa-solid fa-user text-slate-400"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-slate-900 uppercase" id="pdfClientNameDisplay">Client Name</h2>
+                            <p class="text-xs text-slate-500 font-medium">Mode: <span id="pdfModeDisplay" class="font-bold text-secondary">Hypertrophy</span></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h3 class="text-xs font-bold text-primary tracking-wider uppercase">ProFit Coaching</h3>
+                        <p class="text-[11px] text-slate-500">Coach: <span id="pdfCoachNameDisplay" class="font-semibold text-slate-700">Coach Nadim</span></p>
+                    </div>
+                </div>
+
+                <!-- Progression Rules Summary Box -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-primary"></i> 5-Week Periodization & Overload Formula Applied:</p>
+                    <p id="pdfRulesDescription" class="text-blue-800 leading-relaxed">
+                        Hypertrophy progression: Weeks 1-4 reps 8→9→10→12 with +2.5kg (+5kg for Squat/Deadlift). Week 5 is Deload week.
+                    </p>
+                </div>
+
+                <!-- 5-Week Progressive Workout Tables -->
+                <div id="pdfWeeksContainer" class="space-y-6">
+                    <!-- Injected Weeks 1 to 5 tables -->
+                </div>
+
+                <!-- PDF Footer Note -->
+                <div class="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-400">
+                    Generated with ProFit Coach Engine • 100% Mobile Optimized PDF
+                </div>
+            </div>
+
+            <!-- Download Button (Visible after generation) -->
+            <div id="downloadActionContainer" class="hidden pb-4">
+                <button type="button" onclick="downloadPDF()" class="w-full py-3.5 bg-primary hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-file-pdf text-lg"></i> Download PDF for Client (High Quality)
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // State Management
+        let currentMode = 'hypertrophy'; // 'hypertrophy' or 'strength'
+        let activeDay = 1;
+        let editingIndex = null; // null means adding new, number means editing index
+
+        // Days data structure (Day 1 to Day 6)
+        // Each day stores focus and array of exercises
+        let workoutDays = {
+            1: { focus: '', exercises: [] },
+            2: { focus: '', exercises: [] },
+            3: { focus: '', exercises: [] },
+            4: { focus: '', exercises: [] },
+            5: { focus: '', exercises: [] },
+            6: { focus: '', exercises: [] }
+        };
+
+        // Split options per mode
+        const splitsHypertrophy = [
+            "Chest, Shoulder & Triceps",
+            "Back, Rear Delt & Biceps",
+            "Legs & Abs",
+            "Off Day & Cardio",
+            "Full Body",
+            "Shoulders & Arms"
+        ];
+
+        const splitsStrength = [
+            "Squats + Accessories",
+            "Bench + Accessories",
+            "Deadlift + Accessories",
+            "Off Day",
+            "Full Body Compound Exercises",
+            "Upper Body Power"
+        ];
+
+        // Cardio exercise options
+        const cardioOptions = [
+            "Treadmill Zone 2 Jog",
+            "Incline Treadmill Walk",
+            "Stationary Cycling",
+            "Rowing Machine",
+            "Elliptical Trainer",
+            "HIIT Sprints & Rope"
+        ];
+
+        // Strength main lifts & accessory preset suggestions
+        const strengthPresets = [
+            "Barbell Back Squat",
+            "Paused Squat",
+            "Competition Bench Press",
+            "Close Grip Bench Press",
+            "Sumo Deadlift",
+            "Conventional Deadlift",
+            "Barbell Overhead Press",
+            "Romanian Deadlift",
+            "Barbell Rows",
+            "Lat Pulldown"
+        ];
+
+        // Initialize App on Load
+        window.onload = function() {
+            renderDayTabs();
+            updateSplitDropdown();
+            setupImageListener();
+            updateUIForMode();
+        };
+
+        // Image upload preview handler
+        function setupImageListener() {
+            const imgInput = document.getElementById('clientImage');
+            imgInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Str = event.target.result;
+                        document.getElementById('clientAvatarPreview').src = base64Str;
+                        document.getElementById('clientAvatarPreview').classList.remove('hidden');
+                        document.getElementById('clientAvatarPlaceholder').classList.add('hidden');
+                        
+                        // Also for PDF
+                        document.getElementById('pdfClientImg').src = base64Str;
+                        document.getElementById('pdfClientImg').classList.remove('hidden');
+                        document.getElementById('pdfClientIcon').classList.add('hidden');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Set Training Mode
+        function setMode(mode) {
+            currentMode = mode;
+            const btnHyp = document.getElementById('btnHypertrophy');
+            const btnStr = document.getElementById('btnStrength');
+            const badge = document.getElementById('currentModeBadge');
+
+            if (mode === 'hypertrophy') {
+                btnHyp.className = "py-3 px-4 rounded-xl text-sm font-bold border transition flex items-center justify-center gap-2 bg-secondary text-slate-950 border-secondary shadow-lg shadow-orange-500/20";
+                btnStr.className = "py-3 px-4 rounded-xl text-sm font-bold border transition flex items-center justify-center gap-2 bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500";
+                badge.innerText = "Hypertrophy Mode";
+                badge.className = "text-xs px-2.5 py-0.5 rounded-full bg-orange-500/20 text-secondary font-semibold";
+            } else {
+                btnStr.className = "py-3 px-4 rounded-xl text-sm font-bold border transition flex items-center justify-center gap-2 bg-secondary text-slate-950 border-secondary shadow-lg shadow-orange-500/20";
+                btnHyp.className = "py-3 px-4 rounded-xl text-sm font-bold border transition flex items-center justify-center gap-2 bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500";
+                badge.innerText = "Powerlifting / Strength Mode";
+                badge.className = "text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-primary font-semibold";
+            }
+
+            updateSplitDropdown();
+            updateUIForMode();
+            renderExercises();
+        }
+
+        // Render Day Tabs (1 to 6)
+        function renderDayTabs() {
+            const container = document.getElementById('dayTabsContainer');
+            container.innerHTML = '';
+            for (let i = 1; i <= 6; i++) {
+                const isActive = activeDay === i;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => switchDay(i);
+                btn.className = `px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 border ${isActive ? 'bg-primary text-white border-primary shadow-md shadow-blue-500/30' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`;
+                btn.innerHTML = `<i class="fa-solid fa-calendar-day mr-1"></i> Day ${i}`;
+                container.appendChild(btn);
+            }
+            document.getElementById('activeDayNumLabel').innerText = activeDay;
+            document.getElementById('activeDayDisplayNum').innerText = activeDay;
+            document.getElementById('formDayNum').innerText = activeDay;
+        }
+
+        // Switch Active Day
+        function switchDay(dayNum) {
+            activeDay = dayNum;
+            renderDayTabs();
+            // set dropdown value to saved focus if any
+            const splitSelect = document.getElementById('daySplitSelect');
+            if (workoutDays[activeDay].focus) {
+                splitSelect.value = workoutDays[activeDay].focus;
+            }
+            checkCardioOrOffState();
+            renderExercises();
+            resetForm();
+        }
+
+        // Update Split Dropdown based on mode
+        function updateSplitDropdown() {
+            const select = document.getElementById('daySplitSelect');
+            select.innerHTML = '';
+            const splits = currentMode === 'hypertrophy' ? splitsHypertrophy : splitsStrength;
+            
+            splits.forEach(split => {
+                const opt = document.createElement('option');
+                opt.value = split;
+                opt.innerText = split;
+                select.appendChild(opt);
+            });
+
+            // Set default focus for active day if empty
+            if (!workoutDays[activeDay].focus) {
+                workoutDays[activeDay].focus = select.value;
+            } else {
+                select.value = workoutDays[activeDay].focus;
+            }
+            checkCardioOrOffState();
+        }
+
+        function onDaySplitChange() {
+            const select = document.getElementById('daySplitSelect');
+            workoutDays[activeDay].focus = select.value;
+            checkCardioOrOffState();
+        }
+
+        // Check if selected day focus is Cardio or Off Day to adjust form inputs
+        function checkCardioOrOffState() {
+            const focus = workoutDays[activeDay].focus.toLowerCase();
+            const inputCard = document.getElementById('workoutInputCard');
+            const fieldSets = document.getElementById('fieldSets');
+            const fieldReps = document.getElementById('fieldReps');
+            const fieldWeight = document.getElementById('fieldWeight');
+            const fieldTime = document.getElementById('fieldTime');
+            const exNameInput = document.getElementById('exName');
+            const exSelectDropdown = document.getElementById('exSelectDropdown');
+
+            const isCardio = focus.includes('cardio');
+            const isOff = focus.includes('off day');
+
+            if (isOff) {
+                inputCard.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                inputCard.classList.remove('opacity-50', 'pointer-events-none');
+            }
+
+            if (isCardio) {
+                fieldSets.classList.add('hidden');
+                fieldReps.classList.add('hidden');
+                fieldWeight.classList.add('hidden');
+                fieldTime.classList.remove('hidden');
+                exNameInput.classList.add('hidden');
+                exSelectDropdown.classList.remove('hidden');
+                
+                // Populate cardio dropdown
+                exSelectDropdown.innerHTML = '';
+                cardioOptions.forEach(opt => {
+                    const el = document.createElement('option');
+                    el.value = opt;
+                    el.innerText = opt;
+                    exSelectDropdown.appendChild(el);
+                });
+            } else {
+                fieldSets.classList.remove('hidden');
+                fieldReps.classList.remove('hidden');
+                fieldWeight.classList.remove('hidden');
+                fieldTime.classList.add('hidden');
+                exNameInput.classList.remove('hidden');
+                exSelectDropdown.classList.add('hidden');
+
+                if (currentMode === 'strength') {
+                    exNameInput.placeholder = "e.g. Squats + Accessories / Triceps Pushdown";
+                } else {
+                    exNameInput.placeholder = "e.g. Incline Dumbbell Press";
+                }
+            }
+        }
+
+        function updateUIForMode() {
+            checkCardioOrOffState();
+        }
+
+        // Add or Update Exercise in Active Day
+        function addOrUpdateExercise() {
+            const focus = workoutDays[activeDay].focus.toLowerCase();
+            if (focus.includes('off day')) return;
+
+            const isCardio = focus.includes('cardio');
+            let name = "";
+            let sets = "";
+            let reps = "";
+            let weight = "";
+            let time = "";
+
+            if (isCardio) {
+                name = document.getElementById('exSelectDropdown').value;
+                time = document.getElementById('exTime').value || "30 Mins";
+                sets = "1";
+                reps = "Cardio";
+                weight = "0";
+            } else {
+                name = document.getElementById('exName').value.trim();
+                sets = document.getElementById('exSets').value || "3";
+                reps = document.getElementById('exReps').value || (currentMode === 'strength' ? "5" : "8");
+                weight = document.getElementById('exWeight').value || "0";
+                
+                if (!name) {
+                    alert("Please enter an exercise name.");
+                    return;
+                }
+            }
+
+            const exerciseItem = { name, sets, reps, weight, time, isCardio };
+
+            if (editingIndex !== null) {
+                // Update existing
+                workoutDays[activeDay].exercises[editingIndex] = exerciseItem;
+                editingIndex = null;
+                document.getElementById('addExerciseBtn').innerHTML = `<i class="fa-solid fa-plus"></i> Add Exercise to Routine`;
+            } else {
+                // Add new
+                workoutDays[activeDay].exercises.push(exerciseItem);
+            }
+
+            resetForm();
+            renderExercises();
+        }
+
+        function resetForm() {
+            document.getElementById('exName').value = '';
+            document.getElementById('exTime').value = '';
+            editingIndex = null;
+            document.getElementById('addExerciseBtn').innerHTML = `<i class="fa-solid fa-plus"></i> Add Exercise to Routine`;
+        }
+
+        // Render Exercises List for Current Day
+        function renderExercises() {
+            const container = document.getElementById('exerciseListContainer');
+            const exercises = workoutDays[activeDay].exercises;
+            document.getElementById('exerciseCountBadge').innerText = `${exercises.length} items`;
+            container.innerHTML = '';
+
+            if (exercises.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 bg-slate-900/50 rounded-xl border border-dashed border-slate-800 text-slate-500 text-xs">
+                        <i class="fa-solid fa-clipboard-list text-base mb-1"></i>
+                        <p>No exercises added for Day ${activeDay} yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            exercises.forEach((ex, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-center justify-between text-xs";
+                
+                let detailsText = "";
+                if (ex.isCardio) {
+                    detailsText = `<span class="text-secondary font-semibold"><i class="fa-solid fa-clock"></i> ${ex.time}</span>`;
+                } else {
+                    detailsText = `<span class="text-slate-400">Sets: <strong class="text-white">${ex.sets}</strong> | Reps: <strong class="text-white">${ex.reps}</strong> | Weight: <strong class="text-secondary">${ex.weight} kg</strong></span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="space-y-0.5">
+                        <h4 class="font-bold text-white flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-slate-800 text-secondary flex items-center justify-center text-[10px]">${idx + 1}</span>
+                            ${ex.name}
+                        </h4>
+                        <div class="pl-6">${detailsText}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="editExercise(${idx})" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition" title="Edit">
+                            <i class="fa-solid fa-pen text-[11px]"></i>
+                        </button>
+                        <button onclick="deleteExercise(${idx})" class="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition" title="Delete">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Edit Exercise
+        function editExercise(idx) {
+            const ex = workoutDays[activeDay].exercises[idx];
+            const focus = workoutDays[activeDay].focus.toLowerCase();
+            const isCardio = focus.includes('cardio');
+
+            if (isCardio) {
+                document.getElementById('exSelectDropdown').value = ex.name;
+                document.getElementById('exTime').value = ex.time;
+            } else {
+                document.getElementById('exName').value = ex.name;
+                document.getElementById('exSets').value = ex.sets;
+                document.getElementById('exReps').value = ex.reps;
+                document.getElementById('exWeight').value = ex.weight;
+            }
+
+            editingIndex = idx;
+            document.getElementById('addExerciseBtn').innerHTML = `<i class="fa-solid fa-check"></i> Update Exercise`;
+        }
+
+        // Delete Exercise
+        function deleteExercise(idx) {
+            workoutDays[activeDay].exercises.splice(idx, 1);
+            renderExercises();
+        }
+
+        // SECTION 5 & 7: Generate Plan & PDF Preview
+        function generatePlanPreview() {
+            const clientName = document.getElementById('clientName').value.trim() || "Valued Client";
+            const coachName = document.getElementById('coachName').value.trim() || "MD. Nadim Khan";
+
+            document.getElementById('pdfClientNameDisplay').innerText = clientName;
+            document.getElementById('pdfCoachNameDisplay').innerText = coachName;
+            document.getElementById('pdfModeDisplay').innerText = currentMode === 'hypertrophy' ? 'Hypertrophy Builder' : 'Powerlifting Strength';
+
+            const rulesDesc = document.getElementById('pdfRulesDescription');
+            if (currentMode === 'hypertrophy') {
+                rulesDesc.innerHTML = "<strong>Hypertrophy Progression:</strong> Week 1: 8 reps, Week 2: 9 reps, Week 3: 10 reps, Week 4: 12 reps. Weight increases by +2.5kg per week (except Squats & Deadlifts which increase by +5kg). <strong>Week 5 is Deload Week</strong> (reduced intensity/volume).";
+            } else {
+                rulesDesc.innerHTML = "<strong>Powerlifting Progression:</strong> Fixed 5 reps for Squats, Bench, and Deadlifts across weeks 1-4 with weight progressing weekly (+5kg on Squats/Deadlifts, +2.5kg on Bench & accessories). <strong>Week 5 is Deload Week</strong>.";
+            }
+
+            const weeksContainer = document.getElementById('pdfWeeksContainer');
+            weeksContainer.innerHTML = '';
+
+            // Generate 5 Weeks
+            for (let w = 1; w <= 5; w++) {
+                const isDeload = (w === 5);
+                const weekBox = document.createElement('div');
+                weekBox.className = `border rounded-2xl p-4 space-y-3 ${isDeload ? 'border-orange-300 bg-orange-50/50' : 'border-slate-200 bg-slate-50'}`;
+                
+                let weekHeaderHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <h4 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-lg text-xs ${isDeload ? 'bg-secondary text-slate-950 font-bold' : 'bg-primary text-white'}">Week ${w}</span>
+                            ${isDeload ? '⚡ Deload & Recovery Week' : 'Progressive Overload Week'}
+                        </h4>
+                        <span class="text-[11px] text-slate-500 font-medium">Target Phase: ${isDeload ? 'Deload (60% Intensity)' : 'Accumulation'}</span>
+                    </div>
+                `;
+
+                let daysHTML = '<div class="space-y-3 pt-1">';
+
+                // Iterate through Days 1 to 6
+                for (let d = 1; d <= 6; d++) {
+                    const dayData = workoutDays[d];
+                    const focus = dayData.focus || `Day ${d} Routine`;
+                    const exercises = dayData.exercises;
+
+                    daysHTML += `
+                        <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-sm space-y-2">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                                <span class="text-xs font-bold text-primary uppercase">Day ${d}: ${focus}</span>
+                                <span class="text-[10px] text-slate-400 font-semibold">${exercises.length} Exercises</span>
+                            </div>
+                    `;
+
+                    if (exercises.length === 0) {
+                        daysHTML += `<p class="text-[11px] text-slate-400 italic py-1">Rest or unassigned day.</p>`;
+                    } else {
+                        daysHTML += `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-[11px]">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b border-slate-100">
+                                            <th class="pb-1 font-semibold">Exercise</th>
+                                            <th class="pb-1 font-semibold text-center">Sets</th>
+                                            <th class="pb-1 font-semibold text-center">Reps</th>
+                                            <th class="pb-1 font-semibold text-right">Target Weight</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                        `;
+
+                        exercises.forEach(ex => {
+                            let calculatedReps = ex.reps;
+                            let calculatedWeight = parseFloat(ex.weight) || 0;
+
+                            if (!ex.isCardio) {
+                                if (currentMode === 'hypertrophy') {
+                                    // Reps progression: W1=8, W2=9, W3=10, W4=12, W5=8 (deload)
+                                    if (w === 1) calculatedReps = "8";
+                                    else if (w === 2) calculatedReps = "9";
+                                    else if (w === 3) calculatedReps = "10";
+                                    else if (w === 4) calculatedReps = "12";
+                                    else if (w === 5) calculatedReps = "8 (Deload)";
+
+                                    // Weight progression per week
+                                    if (isDeload) {
+                                        calculatedWeight = Math.max(0, calculatedWeight - 10); // Deload drop
+                                    } else if (w > 1) {
+                                        const isSquatOrDead = ex.name.toLowerCase().includes('squat') || ex.name.toLowerCase().includes('deadlift');
+                                        const increment = (isSquatOrDead ? 5 : 2.5) * (w - 1);
+                                        calculatedWeight += increment;
+                                    }
+                                } else {
+                                    // Powerlifting mode: 5 reps constant, Squat/Dead +5kg, Bench +2.5kg
+                                    calculatedReps = isDeload ? "5 (Deload)" : "5";
+                                    if (isDeload) {
+                                        calculatedWeight = Math.max(0, calculatedWeight - 15);
+                                    } else if (w > 1) {
+                                        const isHeavyLift = ex.name.toLowerCase().includes('squat') || ex.name.toLowerCase().includes('deadlift');
+                                        const increment = (isHeavyLift ? 5 : 2.5) * (w - 1);
+                                        calculatedWeight += increment;
+                                    }
+                                }
+                            }
+
+                            daysHTML += `
+                                <tr>
+                                    <td class="py-1.5 font-medium text-slate-800">${ex.name}</td>
+                                    <td class="py-1.5 text-center text-slate-600">${ex.isCardio ? '-' : ex.sets}</td>
+                                    <td class="py-1.5 text-center text-slate-600 font-semibold">${ex.isCardio ? ex.time : calculatedReps}</td>
+                                    <td class="py-1.5 text-right font-bold text-secondary">${ex.isCardio ? 'Cardio' : calculatedWeight + ' kg'}</td>
+                                </tr>
+                            `;
+                        });
+
+                        daysHTML += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
+
+                    daysHTML += `</div>`;
+                }
+
+                daysHTML += '</div>';
+                weekBox.innerHTML = weekHeaderHTML + daysHTML;
+                weeksContainer.appendChild(weekBox);
+            }
+
+            // Show PDF preview container & download button
+            document.getElementById('pdfExportWrapper').classList.remove('hidden');
+            document.getElementById('downloadActionContainer').classList.remove('hidden');
+
+            // Scroll smoothly to preview
+            document.getElementById('pdfExportWrapper').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // SECTION 6: Clean PDF Download Function
+        function downloadPDF() {
+            const clientName = document.getElementById('clientName').value.trim() || "Client_Workout_Plan";
+            const element = document.getElementById('pdfExportWrapper');
+            
+            const opt = {
+                margin:       10,
+                filename:     `${clientName.replace(/\s+/g, '_')}_ProFit_Plan.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Temporary styling for clean PDF export
+            element.classList.remove('hidden');
+            
+            html2pdf().from(element).set(opt).save().then(() => {
+                console.log("PDF Downloaded successfully!");
+            });
+        }
+    </script>
+
+    <div class="mt-4 text-center">
+        <span class="text-[11px] text-slate-500">ProFit Coach Architecture • Designed for Powerlifters & Fitness Coaches</span>
+    </div>
+
+</body>
+</html>
