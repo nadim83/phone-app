@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProFit Coach - Workout Generator & PDF Studio</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/lib/index.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2563eb', // Royal Blue
-                        secondary: '#f97316', // Vibrant Orange
+                        primary: '#2563eb',
+                        secondary: '#f97316',
                         darkbg: '#0f172a',
                         cardbg: '#1e293b'
                     }
@@ -20,9 +19,7 @@
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2pdf Library for Clean PDF Downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .app-container {
@@ -67,7 +64,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-primary border border-blue-500/20">
-                    v2.6 Pro
+                    v2.7 Pro
                 </span>
             </div>
         </header>
@@ -84,11 +81,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Client Name</label>
-                        <input type="text" id="clientName" placeholder="e.g. John Doe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-secondary transition">
+                        <input type="text" id="clientName" placeholder="e.g. MD. Nadim Khan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-secondary transition">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Coach Name</label>
-                        <input type="text" id="coachName" value="MD. Nadim Khan" placeholder="e.g. MD. Nadim Khan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-secondary transition">
+                        <input type="text" id="coachName" value="MD. Nadim Khan" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-secondary transition">
                     </div>
                 </div>
 
@@ -128,17 +125,14 @@
                     <span id="currentModeBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-orange-500/20 text-secondary font-semibold">Hypertrophy Mode</span>
                 </div>
 
-                <!-- Day Tabs (Day 1 to Day 6) -->
                 <div class="flex gap-1 overflow-x-auto pb-2 scrollbar-none" id="dayTabsContainer"></div>
 
-                <!-- Day Split Focus Dropdown -->
                 <div class="space-y-1">
                     <label class="block text-xs font-medium text-slate-400">Day <span id="activeDayNumLabel">1</span> Focus / Category</label>
                     <select id="daySplitSelect" onchange="onDaySplitChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-secondary transition">
                     </select>
                 </div>
 
-                <!-- Workout Input Form -->
                 <div id="workoutInputCard" class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
                     <h3 id="workoutFormTitle" class="text-xs font-bold text-primary uppercase tracking-wide">Add Exercise to Day <span id="formDayNum">1</span></h3>
                     
@@ -175,7 +169,6 @@
                     </button>
                 </div>
 
-                <!-- Exercise List Table -->
                 <div class="space-y-2">
                     <div class="flex items-center justify-between text-xs text-slate-400 px-1">
                         <span>Exercises Assigned for Day <span id="activeDayDisplayNum">1</span></span>
@@ -185,12 +178,12 @@
                 </div>
             </section>
 
-            <!-- SECTION 5: Generate & Preview Plan Button -->
+            <!-- SECTION 5: Generate Plan Button -->
             <button type="button" onclick="generatePlanPreview()" class="w-full py-4 bg-gradient-to-r from-secondary to-orange-500 hover:from-orange-600 hover:to-orange-600 text-slate-950 font-extrabold rounded-2xl shadow-xl shadow-orange-500/30 transition flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
                 <i class="fa-solid fa-wand-magic-sparkles text-lg"></i> Generate 5-Week Progressive Plan
             </button>
 
-            <!-- SECTION 6 & 7: Printable / PDF Preview Container -->
+            <!-- SECTION 6 & 7: On-Screen Live Preview Container -->
             <div id="pdfExportWrapper" class="bg-white text-slate-900 p-6 rounded-3xl shadow-2xl space-y-6 hidden border-4 border-secondary">
                 <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4">
                     <div class="flex items-center gap-3">
@@ -226,14 +219,16 @@
             <!-- Download Button -->
             <div id="downloadActionContainer" class="hidden pb-4">
                 <button type="button" onclick="downloadPDF()" class="w-full py-3.5 bg-primary hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-file-pdf text-lg"></i> Download PDF for Client (High Quality)
+                    <i class="fa-solid fa-file-pdf text-lg"></i> Download Clean PDF for Client
                 </button>
             </div>
 
         </main>
     </div>
 
-    <!-- Application JavaScript Logic -->
+    <!-- Hidden Dedicated Clean Container for PDF Export (Prevents form inputs from printing) -->
+    <div id="pdfPrintTemplate" style="display:none; background: #ffffff; color: #0f172a; padding: 24px; font-family: sans-serif; width: 794px;"></div>
+
     <script>
         let currentMode = 'hypertrophy';
         let activeDay = 1;
@@ -683,22 +678,30 @@
             document.getElementById('pdfExportWrapper').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Dedicated Clean PDF Export Function (Excludes form inputs completely)
         function downloadPDF() {
             const clientName = document.getElementById('clientName').value.trim() || "Client_Workout_Plan";
-            const element = document.getElementById('pdfExportWrapper');
+            const previewElement = document.getElementById('pdfExportWrapper');
             
+            // Clone only the preview card so inputs/buttons are never included
+            const printTemplate = document.getElementById('pdfPrintTemplate');
+            printTemplate.innerHTML = previewElement.innerHTML;
+            printTemplate.style.display = 'block';
+
             const opt = {
-                margin:       [10, 10, 10, 10],
+                margin:       10,
                 filename:     `${clientName.replace(/\s+/g, '_')}_ProFit_Plan.pdf`,
-                image:        { type: 'jpeg', quality: 0.95 },
+                image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Trigger clean PDF download using html2pdf
-            html2pdf().from(element).set(opt).save().catch(err => {
+            html2pdf().from(printTemplate).set(opt).save().then(() => {
+                printTemplate.style.display = 'none';
+            }).catch(err => {
                 console.error("PDF generation error:", err);
-                alert("Could not generate PDF. Please try using Chrome or Safari browser.");
+                printTemplate.style.display = 'none';
+                alert("Could not generate PDF. Please try again.");
             });
         }
     </script>
