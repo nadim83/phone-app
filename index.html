@@ -64,7 +64,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-primary border border-blue-500/20">
-                    v2.9 Pro
+                    v3.0 Pro
                 </span>
             </div>
         </header>
@@ -183,7 +183,7 @@
                 <i class="fa-solid fa-wand-magic-sparkles text-lg"></i> Generate 5-Week Progressive Plan
             </button>
 
-            <!-- SECTION 6 & 7: On-Screen Live Preview Container -->
+            <!-- SECTION 6 & 7: On-Screen Live Preview Container (Used Directly for PDF Export) -->
             <div id="pdfExportWrapper" class="bg-white text-slate-900 p-6 rounded-3xl shadow-2xl space-y-6 hidden border-4 border-secondary">
                 <div class="flex items-center justify-between border-b-2 border-slate-200 pb-4">
                     <div class="flex items-center gap-3">
@@ -225,9 +225,6 @@
 
         </main>
     </div>
-
-    <!-- Hidden Dedicated Clean Container for PDF Export with Explicit White Background -->
-    <div id="pdfPrintTemplate" style="display:none; background-color: #ffffff !important; color: #0f172a !important;"></div>
 
     <script>
         let currentMode = 'hypertrophy';
@@ -573,7 +570,6 @@
             for (let w = 1; w <= 5; w++) {
                 const isDeload = (w === 5);
                 const weekBox = document.createElement('div');
-                // Added explicit inline white background & borders for PDF generation
                 weekBox.style.cssText = `border: 1px solid ${isDeload ? '#fdba74' : '#cbd5e1'}; border-radius: 16px; padding: 16px; margin-bottom: 16px; background-color: ${isDeload ? '#fff7ed' : '#f8fafc'} !important;`;
                 
                 let weekHeaderHTML = `
@@ -677,16 +673,10 @@
             document.getElementById('pdfExportWrapper').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Dedicated Foolproof PDF Export Function
+        // Direct & Robust PDF Export Function (No Hidden Templates)
         function downloadPDF() {
             const clientName = document.getElementById('clientName').value.trim() || "Client_Workout_Plan";
-            const previewElement = document.getElementById('pdfExportWrapper');
-            
-            const printTemplate = document.getElementById('pdfPrintTemplate');
-            printTemplate.innerHTML = previewElement.innerHTML;
-            
-            // Explicit white background and dark text inline styling for canvas engine
-            printTemplate.style.cssText = "display: block; background-color: #ffffff !important; color: #0f172a !important; padding: 24px; font-family: sans-serif; width: 794px; position: absolute; left: -9999px; top: 0;";
+            const element = document.getElementById('pdfExportWrapper');
 
             const opt = {
                 margin:       10,
@@ -696,13 +686,7 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().from(printTemplate).set(opt).save().then(() => {
-                printTemplate.style.display = 'none';
-            }).catch(err => {
-                console.error("PDF generation error:", err);
-                printTemplate.style.display = 'none';
-                alert("Could not generate PDF. Please try again.");
-            });
+            html2pdf().from(element).set(opt).save();
         }
     </script>
 </body>
