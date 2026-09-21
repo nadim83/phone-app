@@ -64,7 +64,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-primary border border-blue-500/20">
-                    v2.8 Pro
+                    v2.9 Pro
                 </span>
             </div>
         </header>
@@ -193,17 +193,17 @@
                         </div>
                         <div>
                             <h2 class="text-base font-extrabold text-slate-900 uppercase" id="pdfClientNameDisplay">Client Name</h2>
-                            <p class="text-xs text-slate-500 font-medium">Mode: <span id="pdfModeDisplay" class="font-bold text-secondary">Hypertrophy</span></p>
+                            <p class="text-xs text-slate-500 font-medium">Mode: <span id="pdfModeDisplay" class="font-bold text-orange-600">Hypertrophy</span></p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <h3 class="text-xs font-bold text-primary tracking-wider uppercase">ProFit Coaching</h3>
+                        <h3 class="text-xs font-bold text-blue-600 tracking-wider uppercase">ProFit Coaching</h3>
                         <p class="text-[11px] text-slate-500">Coach: <span id="pdfCoachNameDisplay" class="font-semibold text-slate-700">MD. Nadim Khan</span></p>
                     </div>
                 </div>
 
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 space-y-1">
-                    <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-primary"></i> 5-Week Periodization & Overload Formula Applied:</p>
+                    <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-blue-600"></i> 5-Week Periodization & Overload Formula Applied:</p>
                     <p id="pdfRulesDescription" class="text-blue-800 leading-relaxed">
                         Hypertrophy progression: Weeks 1-4 reps 8→9→10→12 with +2.5kg (+5kg for Squat/Deadlift). Week 5 is Deload week.
                     </p>
@@ -226,8 +226,8 @@
         </main>
     </div>
 
-    <!-- Hidden Dedicated Clean Container for PDF Export -->
-    <div id="pdfPrintTemplate" style="display:none;"></div>
+    <!-- Hidden Dedicated Clean Container for PDF Export with Explicit White Background -->
+    <div id="pdfPrintTemplate" style="display:none; background-color: #ffffff !important; color: #0f172a !important;"></div>
 
     <script>
         let currentMode = 'hypertrophy';
@@ -573,19 +573,20 @@
             for (let w = 1; w <= 5; w++) {
                 const isDeload = (w === 5);
                 const weekBox = document.createElement('div');
-                weekBox.className = `border rounded-2xl p-4 space-y-3 ${isDeload ? 'border-orange-300 bg-orange-50/50' : 'border-slate-200 bg-slate-50'}`;
+                // Added explicit inline white background & borders for PDF generation
+                weekBox.style.cssText = `border: 1px solid ${isDeload ? '#fdba74' : '#cbd5e1'}; border-radius: 16px; padding: 16px; margin-bottom: 16px; background-color: ${isDeload ? '#fff7ed' : '#f8fafc'} !important;`;
                 
                 let weekHeaderHTML = `
-                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                        <h4 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-lg text-xs ${isDeload ? 'bg-secondary text-slate-950 font-bold' : 'bg-primary text-white'}">Week ${w}</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
+                        <h4 style="font-weight: 800; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                            <span style="padding: 4px 10px; border-radius: 8px; font-size: 11px; background-color: ${isDeload ? '#f97316' : '#2563eb'}; color: ${isDeload ? '#0f172a' : '#ffffff'}; font-weight: bold;">Week ${w}</span>
                             ${isDeload ? '⚡ Deload & Recovery Week' : 'Progressive Overload Week'}
                         </h4>
-                        <span class="text-[11px] text-slate-500 font-medium">Phase: ${isDeload ? 'Deload' : 'Accumulation'}</span>
+                        <span style="font-size: 11px; color: #64748b; font-weight: 600;">Phase: ${isDeload ? 'Deload' : 'Accumulation'}</span>
                     </div>
                 `;
 
-                let daysHTML = '<div class="space-y-3 pt-1">';
+                let daysHTML = '<div style="display: flex; flex-direction: column; gap: 12px;">';
 
                 for (let d = 1; d <= 6; d++) {
                     const dayData = workoutDays[d];
@@ -593,28 +594,27 @@
                     const exercises = dayData.exercises;
 
                     daysHTML += `
-                        <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-sm space-y-2">
-                            <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                                <span class="text-xs font-bold text-primary uppercase">Day ${d}: ${focus}</span>
-                                <span class="text-[10px] text-slate-400 font-semibold">${exercises.length} Exercises</span>
+                        <div style="background-color: #ffffff !important; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px;">
+                                <span style="font-size: 11px; font-weight: bold; color: #2563eb; text-transform: uppercase;">Day ${d}: ${focus}</span>
+                                <span style="font-size: 10px; color: #64748b; font-weight: 600;">${exercises.length} Exercises</span>
                             </div>
                     `;
 
                     if (exercises.length === 0) {
-                        daysHTML += `<p class="text-[11px] text-slate-400 italic py-1">Rest or unassigned day.</p>`;
+                        daysHTML += `<p style="font-size: 11px; color: #94a3b8; font-style: italic; padding: 4px 0;">Rest or unassigned day.</p>`;
                     } else {
                         daysHTML += `
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-[11px]">
-                                    <thead>
-                                        <tr class="text-slate-400 border-b border-slate-100">
-                                            <th class="pb-1 font-semibold">Exercise</th>
-                                            <th class="pb-1 font-semibold text-center">Sets</th>
-                                            <th class="pb-1 font-semibold text-center">Reps</th>
-                                            <th class="pb-1 font-semibold text-right">Target Weight</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-50">
+                            <table style="width: 100%; text-align: left; font-size: 11px; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="color: #64748b; border-bottom: 1px solid #f1f5f9;">
+                                        <th style="padding-bottom: 4px; font-weight: 600;">Exercise</th>
+                                        <th style="padding-bottom: 4px; font-weight: 600; text-align: center;">Sets</th>
+                                        <th style="padding-bottom: 4px; font-weight: 600; text-align: center;">Reps</th>
+                                        <th style="padding-bottom: 4px; font-weight: 600; text-align: right;">Target Weight</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                         `;
 
                         exercises.forEach(ex => {
@@ -649,19 +649,18 @@
                             }
 
                             daysHTML += `
-                                <tr>
-                                    <td class="py-1.5 font-medium text-slate-800">${ex.name}</td>
-                                    <td class="py-1.5 text-center text-slate-600">${ex.isCardio ? '-' : ex.sets}</td>
-                                    <td class="py-1.5 text-center text-slate-600 font-semibold">${ex.isCardio ? ex.time : calculatedReps}</td>
-                                    <td class="py-1.5 text-right font-bold text-secondary">${ex.isCardio ? 'Cardio' : calculatedWeight + ' kg'}</td>
+                                <tr style="border-bottom: 1px solid #f8fafc;">
+                                    <td style="padding: 6px 0; font-weight: 500; color: #1e293b;">${ex.name}</td>
+                                    <td style="padding: 6px 0; text-align: center; color: #475569;">${ex.isCardio ? '-' : ex.sets}</td>
+                                    <td style="padding: 6px 0; text-align: center; color: #475569; font-weight: 600;">${ex.isCardio ? ex.time : calculatedReps}</td>
+                                    <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #f97316;">${ex.isCardio ? 'Cardio' : calculatedWeight + ' kg'}</td>
                                 </tr>
                             `;
                         });
 
                         daysHTML += `
-                                    </tbody>
-                                </table>
-                            </div>
+                                </tbody>
+                            </table>
                         `;
                     }
 
@@ -678,7 +677,7 @@
             document.getElementById('pdfExportWrapper').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Dedicated Clean PDF Export Function
+        // Dedicated Foolproof PDF Export Function
         function downloadPDF() {
             const clientName = document.getElementById('clientName').value.trim() || "Client_Workout_Plan";
             const previewElement = document.getElementById('pdfExportWrapper');
@@ -686,14 +685,14 @@
             const printTemplate = document.getElementById('pdfPrintTemplate');
             printTemplate.innerHTML = previewElement.innerHTML;
             
-            // Apply inline styles to ensure clean PDF rendering
-            printTemplate.style.cssText = "display: block; background: #ffffff; color: #0f172a; padding: 24px; font-family: sans-serif; width: 794px;";
+            // Explicit white background and dark text inline styling for canvas engine
+            printTemplate.style.cssText = "display: block; background-color: #ffffff !important; color: #0f172a !important; padding: 24px; font-family: sans-serif; width: 794px; position: absolute; left: -9999px; top: 0;";
 
             const opt = {
                 margin:       10,
                 filename:     `${clientName.replace(/\s+/g, '_')}_ProFit_Plan.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, backgroundColor: '#ffffff' },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
